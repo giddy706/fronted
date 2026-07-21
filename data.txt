@@ -1,0 +1,65 @@
+Client Name: John Mwangi
+Business Name: SkillPath Academy
+
+1. Purpose of the Website
+I want a website where we can teach people practical skills online and then help them get jobs after completing the training. The website should be easy to use for beginners.
+
+2. Target Users
+
+Students and job seekers
+
+People looking to learn new skills and get employment
+
+3. Main Features Required
+
+User registration and login
+
+Online courses (videos, lessons, and resources)
+
+Progress tracking for students
+
+Certificates after course completion
+
+Job listings for trained users
+
+Application system where students can apply for jobs directly
+
+4. Payment System
+
+Users should be able to pay for courses on the website
+
+Payment methods should include:
+
+Credit/Debit cards
+
+Mobile money (like M-Pesa)
+
+Payment confirmation should be automatic
+
+5. Admin Features
+
+Admin dashboard to:
+
+Upload and manage courses
+
+Add and manage job opportunities
+
+View registered users and payments
+
+Ability to approve or reject job applications
+
+6. Design Preference
+
+Clean, professional, and modern design
+
+Mobile-friendly (works well on phones and tablets)
+
+7. Content
+
+About Us page explaining how training leads to jobs
+
+Courses page
+
+Jobs page
+
+Contact page with email  nderitugideon73@gmail.com and phone number  0797758040
