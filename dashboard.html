@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - SkillPath Academy</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">SkillPath<span>Academy</span></a>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+                <li><a href="courses.html" class="nav-link">Browse Courses</a></li>
+                <li><a href="jobs.html" class="nav-link">Jobs</a></li>
+                <li><a href="#" onclick="logout()" class="btn btn-outline btn-small">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <h1>Welcome, <span id="userName"></span>!</h1>
+            <p class="mb-4">Track your progress and manage your learning journey</p>
+
+            <!-- Stats -->
+            <div class="grid grid-4 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div style="font-size: 2.5rem; color: var(--primary-color);" id="enrolledCount">0</div>
+                        <p>Enrolled Courses</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div style="font-size: 2.5rem; color: var(--secondary-color);" id="completedCount">0</div>
+                        <p>Completed Courses</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div style="font-size: 2.5rem; color: var(--accent-color);" id="certificatesCount">0</div>
+                        <p>Certificates Earned</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div style="font-size: 2.5rem; color: var(--info);" id="applicationsCount">0</div>
+                        <p>Job Applications</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Courses -->
+            <h2>My Courses</h2>
+            <div id="myCourses" class="grid grid-3 mb-4"></div>
+            <div id="noEnrolled" class="hidden text-center mb-4">
+                <p>You haven't enrolled in any courses yet.</p>
+                <a href="courses.html" class="btn btn-primary">Browse Courses</a>
+            </div>
+
+            <!-- Certificates -->
+            <h2>My Certificates</h2>
+            <div id="myCertificates" class="grid grid-2 mb-4"></div>
+            <div id="noCertificates" class="hidden text-center mb-4">
+                <p>Complete courses to earn certificates!</p>
+            </div>
+
+            <!-- Job Applications -->
+            <h2>My Job Applications</h2>
+            <div id="myApplications" class="grid grid-2"></div>
+            <div id="noApplications" class="hidden text-center">
+                <p>You haven't applied for any jobs yet.</p>
+                <a href="jobs.html" class="btn btn-primary">Browse Jobs</a>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        async function loadDashboard() {
+            const res = await fetch('/api/auth/me');
+            if (!res.ok) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const data = await res.json();
+            if (!data.success) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = data.user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+
+            // Display user info
+            document.getElementById('userName').textContent = user.fullName || user.name;
+
+            // Update stats
+            document.getElementById('enrolledCount').textContent = user.enrolledCourses.length;
+            document.getElementById('completedCount').textContent = user.completedCourses.length;
+            document.getElementById('certificatesCount').textContent = user.certificates.length;
+            document.getElementById('applicationsCount').textContent = user.jobApplications.length;
+
+            // Display enrolled courses
+            const myCoursesDiv = document.getElementById('myCourses');
+            const noEnrolled = document.getElementById('noEnrolled');
+
+            if (user.enrolledCourses.length === 0) {
+                noEnrolled.classList.remove('hidden');
+            } else {
+                myCoursesDiv.innerHTML = user.enrolledCourses.map(enrollment => `
+                    <div class="card">
+                        <div class="card-body">
+                            <h4>${enrollment.courseTitle}</h4>
+                            <p style="font-size: 0.875rem; color: var(--gray); margin-bottom: 1rem;">
+                                Enrolled: ${new Date(enrollment.enrolledDate || enrollment.enrolled_at).toLocaleDateString()}
+                            </p>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" style="width: ${enrollment.progress}%"></div>
+                            </div>
+                            <p style="font-size: 0.875rem; margin-bottom: 1rem;">${enrollment.progress}% Complete</p>
+                            ${enrollment.completed
+                                ? '<span class="badge badge-success">Completed ✓</span>'
+                                : `<a href="learn.html?id=${enrollment.course_id}" class="btn btn-primary btn-small">Continue Learning</a>`
+                            }
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Display certificates
+            const myCertificatesDiv = document.getElementById('myCertificates');
+            const noCertificates = document.getElementById('noCertificates');
+
+            if (user.certificates.length === 0) {
+                noCertificates.classList.remove('hidden');
+            } else {
+                myCertificatesDiv.innerHTML = user.certificates.map(cert => `
+                    <div class="card">
+                        <div class="card-body">
+                            <h4>🎓 ${cert.courseTitle}</h4>
+                            <p style="color: var(--gray); margin-bottom: 1rem;">
+                                Issued: ${new Date(cert.issuedDate || cert.completed_at).toLocaleDateString()}
+                            </p>
+                            <a href="certificate.html?id=${cert.id}" class="btn btn-secondary btn-small">View Certificate</a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Display job applications
+            const myApplicationsDiv = document.getElementById('myApplications');
+            const noApplications = document.getElementById('noApplications');
+
+            if (user.jobApplications.length === 0) {
+                noApplications.classList.remove('hidden');
+            } else {
+                myApplicationsDiv.innerHTML = user.jobApplications.map(app => `
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="flex-between mb-2">
+                                <h4>${app.jobTitle}</h4>
+                                <span class="badge ${app.status === 'pending' ? 'badge-warning' : app.status === 'approved' ? 'badge-success' : 'badge-error'}">
+                                    ${app.status.toUpperCase()}
+                                </span>
+                            </div>
+                            <p style="color: var(--gray);">${app.company}</p>
+                            <p style="font-size: 0.875rem; color: var(--gray);">
+                                Applied: ${new Date(app.appliedDate || app.applied_at).toLocaleDateString()}
+                            </p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+
+</html>

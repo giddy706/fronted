@@ -1,156 +1,341 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin - SkillPath Academy</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: Arial, Helvetica, sans-serif; margin: 0; background: #f0f2f5; }
-    .admin-header { background: #1e40af; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .admin-header h1 { margin: 0; font-size: 24px; }
-    .logout-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
-    .logout-btn:hover { background: #dc2626; }
-    .admin-container { display: flex; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
-    .sidebar { width: 200px; }
-    .tabs { display: flex; flex-direction: column; gap: 8px; }
-    .tab-btn { padding: 12px; background: white; border: 2px solid #e5e7eb; border-left: 4px solid #1e40af; cursor: pointer; text-align: left; border-radius: 4px; transition: all 0.3s; }
-    .tab-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
-    .tab-btn:hover { background: #f3f4f6; }
-    .tab-btn.active:hover { background: #1e40af; }
-    .content { flex: 1; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .card h2 { margin-top: 0; color: #1e40af; }
-    .card h3 { margin-top: 20px; margin-bottom: 12px; color: #374151; font-size: 16px; }
-    input, textarea, select { padding: 10px; margin: 8px 0; width: 100%; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 14px; }
-    button { padding: 10px 16px; margin: 8px 0; background: #1e40af; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
-    button:hover { background: #1e3a8a; }
-    button.delete { background: #ef4444; }
-    button.delete:hover { background: #dc2626; }
-    button.edit { background: #10b981; }
-    button.edit:hover { background: #059669; }
-    .hidden { display: none; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: left; font-size: 14px; }
-    th { background: #f9fafb; font-weight: 600; }
-    a { color: #1e40af; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    small { display: block; margin-top: 8px; color: #6b7280; font-size: 13px; }
-    .login-page { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); }
-    .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 400px; }
-    .login-card h2 { color: #1e40af; margin-bottom: 30px; text-align: center; }
-    .login-card input { width: 100%; }
-    .login-card button { width: 100%; margin-top: 20px; }
-    .login-msg { color: #ef4444; margin-top: 12px; text-align: center; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .form-grid.full { grid-column: 1 / -1; }
-    @media (max-width: 768px) {
-      .admin-container { flex-direction: column; }
-      .sidebar { width: 100%; }
-      .tabs { flex-direction: row; overflow-x: auto; }
-      .form-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SkillPath Academy - Learn practical skills online and get hired. Professional training programs that lead to real job opportunities.">
+    <title>SkillPath Academy - Learn Skills, Get Hired</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div id="loginPage" class="login-page">
-    <div class="login-card">
-      <h2>Admin Login</h2>
-      <input id="email" placeholder="Email" />
-      <input id="password" placeholder="Password" type="password" />
-      <button id="loginBtn">Login</button>
-      <div id="loginMsg" class="login-msg"></div>
-    </div>
-  </div>
-
-  <div id="adminPage" class="hidden">
-    <div class="admin-header">
-      <h1>SkillPath Academy - Admin Panel</h1>
-      <button id="logoutBtn" class="logout-btn">Logout</button>
-    </div>
-    <div class="admin-container">
-      <div class="sidebar">
-        <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab('courses')">📚 Courses</button>
-          <button class="tab-btn" onclick="switchTab('lessons')">📖 Lessons</button>
-          <button class="tab-btn" onclick="switchTab('traffic')">📊 Traffic</button>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">SkillPath<span>Academy</span></a>
+            
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="courses.html" class="nav-link">Courses</a></li>
+                <li><a href="jobs.html" class="nav-link">Jobs</a></li>
+                <li><a href="about.html" class="nav-link">About Us</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li><a href="login.html" class="btn btn-primary btn-small">Login</a></li>
+                <li><a href="register.html" class="btn btn-secondary btn-small">Get Started</a></li>
+            </ul>
         </div>
-      </div>
-      <div class="content">
-        <div id="coursesTab" class="tab-content active">
-          <div class="card">
-            <h2>Create Course</h2>
-            <div class="form-grid">
-              <input id="c_title" placeholder="Course Title" />
-              <input id="c_category" placeholder="Category" />
-              <input id="c_price" placeholder="Price" type="number" />
-              <input id="c_instructor" placeholder="Instructor" />
-              <input id="c_level" placeholder="Level (e.g. Beginner)" />
-              <input id="c_duration" placeholder="Duration (e.g. 12 Weeks)" />
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Master In-Demand Skills.<br>Land Your Dream Job.</h1>
+                <p>Join thousands of students who transformed their careers through our practical online training programs. Learn from industry experts, earn recognized certificates, and get connected to real job opportunities.</p>
+                <div class="hero-buttons">
+                    <a href="courses.html" class="btn btn-primary btn-large">Explore Courses</a>
+                    <a href="jobs.html" class="btn btn-outline btn-large">View Job Openings</a>
+                </div>
             </div>
-            <textarea id="c_description" placeholder="Course Description" style="height: 80px;"></textarea>
-            <textarea id="c_requirements" placeholder="Requirements (comma separated)" style="height: 60px;"></textarea>
-            <textarea id="c_outcomes" placeholder="Learning Outcomes (comma separated)" style="height: 60px;"></textarea>
-            <div>
-              <label>Course Image:</label>
-              <input id="c_image" type="file" accept="image/*" />
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="section">
+        <div class="container">
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number">5,000+</span>
+                    <span class="stat-label">Students Trained</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Expert Courses</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3,200+</span>
+                    <span class="stat-label">Jobs Secured</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">95%</span>
+                    <span class="stat-label">Success Rate</span>
+                </div>
             </div>
-            <button id="createCourse">Create Course</button>
-          </div>
-          <div class="card">
-            <h2>Courses List</h2>
-            <button id="refreshCourses">Refresh</button>
-            <div id="coursesList"></div>
-          </div>
         </div>
+    </section>
 
-        <div id="lessonsTab" class="tab-content">
-          <div class="card">
-            <h2>Edit Course & Lessons</h2>
-            <select id="edit_course" onchange="loadEditCourse()"></select>
-            <div id="courseEditForm" class="hidden">
-              <h3>Course Details</h3>
-              <div class="form-grid">
-                <input id="e_title" placeholder="Title" />
-                <input id="e_category" placeholder="Category" />
-                <input id="e_price" placeholder="Price" type="number" />
-                <input id="e_instructor" placeholder="Instructor" />
-              </div>
-              <textarea id="e_description" placeholder="Description" style="height: 80px;"></textarea>
-              <button id="updateCourse">Update Course</button>
+    <!-- How It Works -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2>Your Path to Success</h2>
+                <p>Three simple steps to transform your career</p>
             </div>
-          </div>
-
-          <div class="card">
-            <h2>Add Lesson</h2>
-            <select id="lesson_course"></select>
-            <input id="lesson_title" placeholder="Lesson Title" />
-            <input id="lesson_video" placeholder="Video URL (YouTube or direct link)" />
-            <textarea id="lesson_content" placeholder="Lesson Content" style="height: 100px;"></textarea>
-            <button id="addLesson">Add Lesson</button>
-            <small>Add lessons with text content and optional video links.</small>
-          </div>
-
-          <div class="card">
-            <h2>View & Edit Lessons</h2>
-            <select id="lesson_list_course" onchange="loadLessonList()"></select>
-            <div id="lessonList"></div>
-          </div>
+            
+            <div class="grid grid-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;">📚</div>
+                        <h3 class="card-title">1. Learn</h3>
+                        <p class="card-text">Choose from our wide range of practical courses designed by industry experts. Study at your own pace with video lessons, hands-on projects, and interactive resources.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 1rem;">🎓</div>
+                        <h3 class="card-title">2. Get Certified</h3>
+                        <p class="card-text">Complete your course and earn a recognized certificate that validates your new skills. Our certificates are trusted by employers across multiple industries.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;">💼</div>
+                        <h3 class="card-title">3. Get Hired</h3>
+                        <p class="card-text">Access exclusive job opportunities from our partner companies. Apply directly through our platform and start your new career with confidence.</p>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div id="trafficTab" class="tab-content">
-          <div class="card">
-            <h2>Traffic Logs (Recent)</h2>
-            <button id="refreshTraffic">Refresh</button>
-            <div id="trafficList" style="margin-top: 12px;"></div>
-          </div>
+    <!-- Featured Courses -->
+    <section class="section">
+        <div class="container">
+            <div class="flex-between mb-4">
+                <div>
+                    <h2>Featured Courses</h2>
+                    <p>Start learning today and unlock new career opportunities</p>
+                </div>
+                <a href="courses.html" class="btn btn-outline">View All Courses</a>
+            </div>
+            
+            <div class="grid grid-3" id="featuredCourses">
+                <!-- Courses will be loaded dynamically -->
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=200&fit=crop" alt="Web Development" class="card-image">
+                    <div class="card-body">
+                        <div class="flex-between mb-2">
+                            <span class="badge badge-primary">IT & Programming</span>
+                            <span style="color: var(--gray); font-size: 0.875rem;">12 Weeks</span>
+                        </div>
+                        <h3 class="card-title">Full Stack Web Development</h3>
+                        <p class="card-text">Master HTML, CSS, JavaScript, React, Node.js and build real-world applications from scratch.</p>
+                        <div class="flex-between">
+                            <span style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">KSH 25,000</span>
+                            <a href="course-detail.html?id=1" class="btn btn-primary">Enroll Now</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop" alt="Digital Marketing" class="card-image">
+                    <div class="card-body">
+                        <div class="flex-between mb-2">
+                            <span class="badge badge-success">Marketing</span>
+                            <span style="color: var(--gray); font-size: 0.875rem;">8 Weeks</span>
+                        </div>
+                        <h3 class="card-title">Digital Marketing Mastery</h3>
+                        <p class="card-text">Learn SEO, social media marketing, email campaigns, and analytics to grow any business online.</p>
+                        <div class="flex-between">
+                            <span style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">KSH 18,000</span>
+                            <a href="course-detail.html?id=2" class="btn btn-primary">Enroll Now</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop" alt="Data Analytics" class="card-image">
+                    <div class="card-body">
+                        <div class="flex-between mb-2">
+                            <span class="badge badge-warning">Data Science</span>
+                            <span style="color: var(--gray); font-size: 0.875rem;">10 Weeks</span>
+                        </div>
+                        <h3 class="card-title">Data Analytics & Visualization</h3>
+                        <p class="card-text">Transform raw data into actionable insights using Excel, SQL, Python, and Power BI.</p>
+                        <div class="flex-between">
+                            <span style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">KSH 22,000</span>
+                            <a href="course-detail.html?id=3" class="btn btn-primary">Enroll Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <script src="js/admin.js"></script>
+    <!-- Why Choose Us -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2>Why Choose SkillPath Academy?</h2>
+                <p>We're more than just an online learning platform</p>
+            </div>
+            
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>💡 Industry-Relevant Curriculum</h4>
+                        <p>Our courses are designed in partnership with leading employers to ensure you learn the exact skills needed in today's job market.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h4>👨‍🏫 Expert Instructors</h4>
+                        <p>Learn from professionals with years of real-world experience who are passionate about helping you succeed.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h4>📱 Learn Anywhere, Anytime</h4>
+                        <p>Access your courses on any device - desktop, tablet, or mobile. Study at your own pace, on your own schedule.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h4>🤝 Job Placement Support</h4>
+                        <p>Get exclusive access to job opportunities from our partner companies and receive support throughout your job search.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h4>📜 Recognized Certificates</h4>
+                        <p>Earn certificates that are valued by employers and can be shared on LinkedIn to showcase your achievements.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h4>💳 Flexible Payment Options</h4>
+                        <p>Pay securely using credit/debit cards or mobile money (M-Pesa). Affordable pricing with no hidden fees.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2>Success Stories</h2>
+                <p>Hear from students who transformed their careers</p>
+            </div>
+            
+            <div class="grid grid-3">
+                <div class="card">
+                    <div class="card-body">
+                        <p style="font-style: italic; margin-bottom: 1rem;">"SkillPath Academy changed my life! I completed the Web Development course and landed a job as a junior developer within 2 months. The training was practical and the job placement support was incredible."</p>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">MK</div>
+                            <div>
+                                <div style="font-weight: 600;">Mary Kamau</div>
+                                <div style="color: var(--gray); font-size: 0.875rem;">Web Developer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <p style="font-style: italic; margin-bottom: 1rem;">"The Digital Marketing course gave me the skills I needed to start my own agency. The instructors were knowledgeable and the course content was up-to-date with current industry trends."</p>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">JO</div>
+                            <div>
+                                <div style="font-weight: 600;">James Omondi</div>
+                                <div style="color: var(--gray); font-size: 0.875rem;">Marketing Consultant</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <p style="font-style: italic; margin-bottom: 1rem;">"I was able to transition from retail to data analytics thanks to SkillPath Academy. The certificate I earned helped me stand out to employers and I'm now working at a great company."</p>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--accent-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">SA</div>
+                            <div>
+                                <div style="font-weight: 600;">Sarah Achieng</div>
+                                <div style="color: var(--gray); font-size: 0.875rem;">Data Analyst</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white;">
+        <div class="container text-center">
+            <h2 style="color: white;">Ready to Start Your Journey?</h2>
+            <p style="color: rgba(255, 255, 255, 0.9); font-size: 1.125rem; margin-bottom: 2rem;">Join SkillPath Academy today and take the first step towards your dream career.</p>
+            <div class="flex-center gap-3">
+                <a href="register.html" class="btn btn-secondary btn-large">Create Free Account</a>
+                <a href="courses.html" class="btn btn-outline btn-large" style="border-color: white; color: white;">Browse Courses</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>SkillPath Academy</h4>
+                    <p>Empowering individuals with practical skills and connecting them to meaningful employment opportunities.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="courses.html">Courses</a></li>
+                        <li><a href="jobs.html">Job Opportunities</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>For Students</h4>
+                    <ul class="footer-links">
+                        <li><a href="register.html">Sign Up</a></li>
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="dashboard.html">My Dashboard</a></li>
+                        <li><a href="#">Help Center</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p>Email: nderitugideon73@gmail.com</p>
+                    <p>Phone: 0797758040</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 SkillPath Academy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
 </body>
 </html>

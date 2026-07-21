@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Details - SkillPath Academy</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">SkillPath<span>Academy</span></a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="courses.html" class="nav-link">Courses</a></li>
+                <li><a href="jobs.html" class="nav-link active">Jobs</a></li>
+                <li><a href="login.html" class="btn btn-primary btn-small">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <div class="grid grid-2" style="gap: 3rem;">
+                <div>
+                    <h1 id="jobTitle"></h1>
+                    <p style="font-size: 1.25rem; color: var(--gray);"><strong id="jobCompany"></strong></p>
+                    <p style="color: var(--gray); margin-bottom: 2rem;">
+                        📍 <span id="jobLocation"></span> • 💰 <span id="jobSalary"></span> • <span id="jobType"></span>
+                    </p>
+
+                    <h3>Job Description</h3>
+                    <p id="jobDescription"></p>
+
+                    <h3>Requirements</h3>
+                    <ul id="jobRequirements"></ul>
+
+                    <h3>Responsibilities</h3>
+                    <ul id="jobResponsibilities"></ul>
+
+                    <h3>Benefits</h3>
+                    <ul id="jobBenefits"></ul>
+                </div>
+
+                <div>
+                    <div class="card" style="position: sticky; top: 100px;">
+                        <div class="card-body">
+                            <h3>Apply for this Position</h3>
+                            <div id="requirementNotice" class="alert alert-info hidden">
+                                <p>To apply, you must complete: <strong id="requiredCourseName"></strong></p>
+                                <a href="#" id="viewCourseLink" class="btn btn-primary btn-small">View Course</a>
+                            </div>
+                            <form id="applicationForm" class="hidden">
+                                <div class="form-group">
+                                    <label class="form-label">Cover Letter *</label>
+                                    <textarea id="coverLetter" class="form-textarea" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-large btn-block">Submit
+                                    Application</button>
+                            </form>
+                            <div id="loginNotice" class="hidden">
+                                <p>Please login to apply for this job</p>
+                                <a href="login.html" class="btn btn-primary btn-block">Login</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobId = parseInt(urlParams.get('id'));
+
+        async function loadJobDetails() {
+            try {
+                const [jobRes, userRes] = await Promise.all([
+                    fetch(`/api/jobs/${jobId}`),
+                    fetch('/api/auth/me').catch(() => ({ json: () => ({ success: false }) }))
+                ]);
+                const jobData = await jobRes.json();
+                const userData = await userRes.json();
+
+                if (!jobData.success) {
+                    alert('Job not found');
+                    window.location.href = 'jobs.html';
+                    return;
+                }
+
+                const job = jobData.job;
+                const user = userData.success ? userData.user : null;
+
+                document.getElementById('jobTitle').textContent = job.title;
+                document.getElementById('jobCompany').textContent = job.company;
+                document.getElementById('jobLocation').textContent = job.location;
+                document.getElementById('jobSalary').textContent = job.salary;
+                document.getElementById('jobType').textContent = job.type;
+                document.getElementById('jobDescription').textContent = job.description;
+
+                document.getElementById('jobRequirements').innerHTML = (job.requirements || []).map(req => `<li>${req}</li>`).join('');
+                document.getElementById('jobResponsibilities').innerHTML = (job.responsibilities || []).map(resp => `<li>${resp}</li>`).join('');
+                document.getElementById('jobBenefits').innerHTML = (job.benefits || []).map(ben => `<li>${ben}</li>`).join('');
+
+                // Check if user can apply
+                if (!user) {
+                    document.getElementById('loginNotice').classList.remove('hidden');
+                } else {
+                    const hasCompleted = (user.completedCourses || []).some(c =>
+                        c.courseId === job.required_course_id || c.course_id === job.required_course_id
+                    );
+
+                    if (!job.required_course_id || hasCompleted) {
+                        document.getElementById('applicationForm').classList.remove('hidden');
+                    } else {
+                        document.getElementById('requiredCourseName').textContent = job.requiredCourseTitle || 'Required Course';
+                        document.getElementById('viewCourseLink').href = `course-detail.html?id=${job.required_course_id}`;
+                        document.getElementById('requirementNotice').classList.remove('hidden');
+                    }
+                }
+
+                document.getElementById('applicationForm').addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const coverLetter = document.getElementById('coverLetter').value;
+                    const fullName = user ? user.fullName : '';
+                    const email = user ? user.email : '';
+                    const phone = user ? (user.phone || '') : '';
+
+                    const result = await applyForJob(jobId, { fullName, email, phone, coverLetter });
+
+                    if (result.success) {
+                        alert('Application submitted successfully!');
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        alert(result.message);
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                alert('Error loading job details');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadJobDetails);
+    </script>
+</body>
+
+</html>

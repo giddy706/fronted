@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore job opportunities exclusively for SkillPath Academy graduates.">
+    <title>Job Opportunities - SkillPath Academy</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">SkillPath<span>Academy</span></a>
+
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="courses.html" class="nav-link">Courses</a></li>
+                <li><a href="jobs.html" class="nav-link active">Jobs</a></li>
+                <li><a href="about.html" class="nav-link">About Us</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li><a href="login.html" class="btn btn-primary btn-small">Login</a></li>
+                <li><a href="register.html" class="btn btn-secondary btn-small">Get Started</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="hero" style="padding: 3rem 0;">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Job Opportunities</h1>
+                <p>Exclusive opportunities for SkillPath Academy graduates</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info Banner -->
+    <section class="section" style="padding-top: 2rem;">
+        <div class="container">
+            <div class="alert alert-info">
+                <strong>📌 Note:</strong> To apply for jobs, you must be enrolled in or have completed the relevant
+                course. <a href="courses.html" style="text-decoration: underline;">Browse courses</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="flex-between mb-4" style="flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary filter-btn" data-category="all">All Jobs</button>
+                    <button class="btn btn-outline filter-btn" data-category="IT & Programming">IT &
+                        Programming</button>
+                    <button class="btn btn-outline filter-btn" data-category="Marketing">Marketing</button>
+                    <button class="btn btn-outline filter-btn" data-category="Data Science">Data Science</button>
+                    <button class="btn btn-outline filter-btn" data-category="Design">Design</button>
+                </div>
+                <div class="form-group" style="margin: 0; min-width: 250px;">
+                    <input type="text" id="searchInput" class="form-input" placeholder="Search jobs...">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Jobs Grid -->
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="grid grid-2" id="jobsGrid">
+                <!-- Jobs will be loaded dynamically -->
+            </div>
+            <div id="noJobs" class="text-center hidden" style="padding: 3rem 0;">
+                <p style="font-size: 1.25rem; color: var(--gray);">No jobs found matching your criteria.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section section-alt">
+        <div class="container text-center">
+            <h2>Want More Job Opportunities?</h2>
+            <p style="font-size: 1.125rem; margin-bottom: 2rem;">Complete more courses to unlock additional job
+                opportunities in different fields.</p>
+            <a href="courses.html" class="btn btn-primary btn-large">Browse Courses</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>SkillPath Academy</h4>
+                    <p>Empowering individuals with practical skills and connecting them to meaningful employment
+                        opportunities.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="courses.html">Courses</a></li>
+                        <li><a href="jobs.html">Job Opportunities</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>For Students</h4>
+                    <ul class="footer-links">
+                        <li><a href="register.html">Sign Up</a></li>
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="dashboard.html">My Dashboard</a></li>
+                        <li><a href="#">Help Center</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p>Email: nderitugideon73@gmail.com</p>
+                    <p>Phone: 0797758040</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 SkillPath Academy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Load and display jobs
+        let allJobs = [];
+        let currentCategory = 'all';
+
+        async function loadJobs() {
+            try {
+                const res = await fetch('/api/jobs');
+                const data = await res.json();
+                allJobs = data.success ? data.jobs : [];
+            } catch (e) {
+                allJobs = [];
+            }
+            displayJobs(allJobs);
+        }
+
+        function getTimeSincePosted(dateStr) {
+            const posted = new Date(dateStr);
+            const now = new Date();
+            const days = Math.floor((now - posted) / (1000 * 60 * 60 * 24));
+
+            if (days === 0) return 'Today';
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
+            return `${Math.floor(days / 30)} months ago`;
+        }
+
+        function displayJobs(jobs) {
+            const grid = document.getElementById('jobsGrid');
+            const noJobs = document.getElementById('noJobs');
+
+            if (jobs.length === 0) {
+                grid.innerHTML = '';
+                noJobs.classList.remove('hidden');
+                return;
+            }
+
+            noJobs.classList.add('hidden');
+
+            grid.innerHTML = jobs.map(job => `
+                <div class="card">
+                    <div class="card-body">
+                        <div class="flex-between mb-2">
+                            <span class="badge badge-success">${job.type}</span>
+                            <span style="color: var(--gray); font-size: 0.875rem;">${getTimeSincePosted(job.postedDate)}</span>
+                        </div>
+                        <h3 class="card-title">${job.title}</h3>
+                        <p style="color: var(--gray); margin-bottom: 0.5rem;">
+                            <strong>${job.company}</strong>
+                        </p>
+                        <p style="color: var(--gray); font-size: 0.875rem; margin-bottom: 1rem;">
+                            📍 ${job.location} • 💰 ${job.salary}
+                        </p>
+                        <p class="card-text">${job.description.substring(0, 150)}...</p>
+                        <div style="margin-top: 1rem;">
+                            <span class="badge badge-primary">${job.category}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="job-detail.html?id=${job.id}" class="btn btn-primary btn-block">View Details & Apply</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter by category
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                // Update active button
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('btn-primary');
+                    b.classList.add('btn-outline');
+                });
+                this.classList.remove('btn-outline');
+                this.classList.add('btn-primary');
+
+                // Filter jobs
+                const category = this.dataset.category;
+                currentCategory = category;
+                const filtered = category === 'all'
+                    ? allJobs
+                    : allJobs.filter(j => j.category === category);
+                displayJobs(filtered);
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            let filtered = currentCategory === 'all'
+                ? allJobs
+                : allJobs.filter(j => j.category === currentCategory);
+
+            if (searchTerm) {
+                filtered = filtered.filter(job =>
+                    job.title.toLowerCase().includes(searchTerm) ||
+                    job.company.toLowerCase().includes(searchTerm) ||
+                    job.description.toLowerCase().includes(searchTerm) ||
+                    job.location.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            displayJobs(filtered);
+        });
+
+        // Load jobs on page load
+        document.addEventListener('DOMContentLoaded', loadJobs);
+    </script>
+</body>
+
+</html>

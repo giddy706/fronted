@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn - SkillPath Academy</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="dashboard.html" class="logo">SkillPath<span>Academy</span></a>
+            <a href="dashboard.html" class="btn btn-outline btn-small">← Back to Dashboard</a>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container-wide">
+            <div class="grid grid-3" style="gap: 2rem;">
+                <!-- Lessons Sidebar -->
+                <div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 id="courseTitle"></h3>
+                            <div class="progress mb-3">
+                                <div class="progress-bar" id="progressBar"></div>
+                            </div>
+                            <p id="progressText" class="mb-3"></p>
+                            <hr>
+                            <h4>Lessons</h4>
+                            <div id="lessonsList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Player -->
+                <div style="grid-column: span 2;">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h2 id="currentLessonTitle"></h2>
+                            <div
+                                style="background: #000; aspect-ratio: 16/9; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; margin: 1rem 0;">
+                                📹 Video Player
+                                <p style="font-size: 0.875rem; margin-top: 1rem;">In a real implementation, embed video
+                                    here</p>
+                            </div>
+                            <button id="completeBtn" class="btn btn-secondary btn-large">Mark as Complete</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Lesson Resources</h3>
+                            <p>Download course materials and resources for this lesson.</p>
+                            <button class="btn btn-outline">Download Resources</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = parseInt(urlParams.get('id'));
+
+        let enrollment = null;
+        let currentLessonIndex = 0;
+
+        function renderLessonsList() {
+            const lessonsList = document.getElementById('lessonsList');
+            lessonsList.innerHTML = enrollment.lessons.map((lesson, index) => `
+                <div class="lesson-item" style="padding: 0.75rem; margin: 0.5rem 0; border-radius: var(--radius-md); cursor: pointer; background: ${index === currentLessonIndex ? 'var(--light-bg)' : 'transparent'}; border: 1px solid #e5e7eb;" onclick="loadLesson(${index})">
+                    <div class="flex-between">
+                        <span>${lesson.title}</span>
+                        ${lesson.completed ? '<span style="color: var(--success);">✓</span>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadLesson(index) {
+            currentLessonIndex = index;
+            const lesson = enrollment.lessons[index];
+            document.getElementById('currentLessonTitle').textContent = lesson.title;
+
+            const completeBtn = document.getElementById('completeBtn');
+            if (lesson.completed) {
+                completeBtn.textContent = 'Completed ✓';
+                completeBtn.classList.add('btn-success');
+                completeBtn.classList.remove('btn-secondary');
+            } else {
+                completeBtn.textContent = 'Mark as Complete';
+                completeBtn.classList.add('btn-secondary');
+                completeBtn.classList.remove('btn-success');
+            }
+        }
+
+        function updateProgress() {
+            const progress = enrollment.progress;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${progress}% Complete`;
+
+            if (enrollment.completed) {
+                alert('Congratulations! You have completed this course. Check your dashboard for your certificate!');
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        async function initLearnPage() {
+            // Check auth
+            const meRes = await fetch('/api/auth/me');
+            if (!meRes.ok) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const meData = await meRes.json();
+            if (!meData.success) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Fetch enrollments
+            const enrollRes = await fetch('/api/courses/my-enrollments');
+            const enrollData = await enrollRes.json();
+
+            if (!enrollData.success) {
+                alert('Could not load enrollments');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            enrollment = enrollData.enrollments.find(e => e.course_id === courseId);
+            if (!enrollment) {
+                alert('You are not enrolled in this course');
+                window.location.href = 'courses.html';
+                return;
+            }
+
+            // Display course info
+            document.getElementById('courseTitle').textContent = enrollment.courseTitle;
+            updateProgress();
+            renderLessonsList();
+
+            // Load first incomplete lesson or first lesson
+            const firstIncomplete = enrollment.lessons.findIndex(l => !l.completed);
+            loadLesson(firstIncomplete >= 0 ? firstIncomplete : 0);
+
+            // Complete lesson handler
+            document.getElementById('completeBtn').addEventListener('click', async function () {
+                const lesson = enrollment.lessons[currentLessonIndex];
+                if (!lesson.completed) {
+                    const result = await updateLessonProgress(courseId, lesson.id);
+                    if (result.success) {
+                        lesson.completed = true;
+                        enrollment.progress = result.progress;
+                        enrollment.completed = result.completed;
+
+                        renderLessonsList();
+                        updateProgress();
+                        loadLesson(currentLessonIndex);
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initLearnPage);
+    </script>
+</body>
+
+</html>
