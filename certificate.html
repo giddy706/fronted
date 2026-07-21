@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate - SkillPath Academy</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .certificate {
+            background: white;
+            border: 10px solid var(--primary-color);
+            padding: 3rem;
+            max-width: 800px;
+            margin: 2rem auto;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .certificate-header {
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .certificate-body {
+            margin: 2rem 0;
+        }
+
+        .student-name {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin: 1rem 0;
+            font-weight: 700;
+        }
+
+        .course-name {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin: 1rem 0;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar no-print">
+        <div class="navbar-container">
+            <a href="dashboard.html" class="logo">SkillPath<span>Academy</span></a>
+            <a href="dashboard.html" class="btn btn-outline btn-small">← Back to Dashboard</a>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <div class="certificate" id="certificate">
+                <div class="certificate-header">
+                    <h1 style="color: var(--primary-color); margin: 0;">SkillPath Academy</h1>
+                    <p style="font-size: 1.25rem; color: var(--gray); margin: 0.5rem 0;">Certificate of Completion</p>
+                </div>
+
+                <div class="certificate-body">
+                    <p style="font-size: 1.125rem;">This is to certify that</p>
+                    <div class="student-name" id="studentName"></div>
+                    <p style="font-size: 1.125rem;">has successfully completed the course</p>
+                    <div class="course-name" id="courseName"></div>
+                    <p style="font-size: 1rem; color: var(--gray); margin-top: 2rem;">
+                        Issued on <strong id="issueDate"></strong>
+                    </p>
+                    <p style="font-size: 0.875rem; color: var(--gray);">
+                        Certificate ID: <strong id="certificateId"></strong>
+                    </p>
+                </div>
+
+                <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #e5e7eb;">
+                    <div style="display: flex; justify-content: space-around;">
+                        <div>
+                            <div style="border-top: 2px solid var(--dark); width: 200px; margin: 0 auto;"></div>
+                            <p style="margin-top: 0.5rem; font-weight: 600;">John Mwangi</p>
+                            <p style="font-size: 0.875rem; color: var(--gray);">Founder & CEO</p>
+                        </div>
+                        <div>
+                            <div style="border-top: 2px solid var(--dark); width: 200px; margin: 0 auto;"></div>
+                            <p style="margin-top: 0.5rem; font-weight: 600;">Course Instructor</p>
+                            <p style="font-size: 0.875rem; color: var(--gray);" id="instructorName"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center no-print" style="margin-top: 2rem;">
+                <button onclick="window.print()" class="btn btn-primary btn-large">Download PDF</button>
+                <a href="dashboard.html" class="btn btn-outline btn-large">Back to Dashboard</a>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const user = getCurrentUser();
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const certId = parseInt(urlParams.get('id'));
+
+        const certificate = user.certificates.find(c => c.id === certId);
+
+        if (certificate) {
+            document.getElementById('studentName').textContent = user.fullName;
+            document.getElementById('courseName').textContent = certificate.courseTitle;
+            document.getElementById('issueDate').textContent = new Date(certificate.issuedDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('certificateId').textContent = `CERT-${certificate.id}`;
+
+            // Get instructor name from course
+            const courses = JSON.parse(localStorage.getItem('courses') || '[]');
+            const course = courses.find(c => c.id === certificate.courseId);
+            if (course) {
+                document.getElementById('instructorName').textContent = course.instructor;
+            }
+        } else {
+            alert('Certificate not found');
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+
+</html>

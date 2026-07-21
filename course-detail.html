@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - SkillPath Academy</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">SkillPath<span>Academy</span></a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="courses.html" class="nav-link active">Courses</a></li>
+                <li><a href="jobs.html" class="nav-link">Jobs</a></li>
+                <li><a href="login.html" class="btn btn-primary btn-small">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <div class="grid grid-2" style="gap: 3rem;">
+                <div>
+                    <img id="courseImage" src="" alt=""
+                        style="width: 100%; border-radius: var(--radius-lg); margin-bottom: 2rem;">
+                    <h1 id="courseTitle"></h1>
+                    <p id="courseDescription"></p>
+
+                    <h3>What You'll Learn</h3>
+                    <ul id="courseCurriculum" style="list-style: none; padding: 0;"></ul>
+
+                    <h3>Requirements</h3>
+                    <ul id="courseRequirements"></ul>
+                    <div id="courseLessonDetails" style="margin-top:2rem;"></div>
+                </div>
+
+                <div>
+                    <div class="card" style="position: sticky; top: 100px;">
+                        <div class="card-body">
+                            <h2 id="coursePrice" style="color: var(--primary-color); margin-bottom: 1rem;"></h2>
+                            <div style="margin-bottom: 1rem;">
+                                <p><strong>Duration:</strong> <span id="courseDuration"></span></p>
+                                <p><strong>Level:</strong> <span id="courseLevel"></span></p>
+                                <p><strong>Instructor:</strong> <span id="courseInstructor"></span></p>
+                                <p><strong>Students:</strong> <span id="courseStudents"></span></p>
+                                <p><strong>Rating:</strong> ⭐ <span id="courseRating"></span></p>
+                            </div>
+                            <button id="enrollBtn" class="btn btn-primary btn-large btn-block">Enroll Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = parseInt(urlParams.get('id'));
+
+        function renderLessonVideo(item) {
+            if (!item.video_url) return '';
+            if (item.video_url.includes('youtube.com') || item.video_url.includes('youtu.be')) {
+                const videoId = item.video_url.includes('youtu.be')
+                    ? item.video_url.split('/').pop().split('?')[0]
+                    : new URL(item.video_url).searchParams.get('v');
+                if (videoId) {
+                    return `<iframe width="100%" height="360" src="https://www.youtube.com/embed/${videoId}" title="${item.title}" frameborder="0" allowfullscreen></iframe>`;
+                }
+            }
+            if (item.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i)) {
+                return `<video controls style="width:100%; max-height:400px;" src="${item.video_url}"></video>`;
+            }
+            return `<p><a href="${item.video_url}" target="_blank" rel="noopener">Open video or resource</a></p>`;
+        }
+
+        async function loadCourseDetails() {
+            try {
+                const res = await fetch(`/api/courses/${courseId}`);
+                const data = await res.json();
+                if (!data.success) {
+                    alert('Course not found');
+                    window.location.href = 'courses.html';
+                    return;
+                }
+                
+                const course = data.course;
+                
+                document.getElementById('courseImage').src = course.image;
+                document.getElementById('courseTitle').textContent = course.title;
+                document.getElementById('courseDescription').textContent = course.description;
+                document.getElementById('coursePrice').textContent = `KSH ${course.price.toLocaleString()}`;
+                document.getElementById('courseDuration').textContent = course.duration;
+                document.getElementById('courseLevel').textContent = course.level;
+                document.getElementById('courseInstructor').textContent = course.instructor;
+                document.getElementById('courseStudents').textContent = (course.students || 0).toLocaleString();
+                document.getElementById('courseRating').textContent = course.rating;
+
+                document.getElementById('courseCurriculum').innerHTML = course.curriculum.map(item =>
+                    `<li style="padding: 0.5rem 0; border-bottom: 1px solid #e5e7eb;">✓ ${item.title || item}</li>`
+                ).join('');
+
+                document.getElementById('courseRequirements').innerHTML = (course.requirements || []).map(req =>
+                    `<li>${req}</li>`
+                ).join('');
+
+                const lessonDetails = document.getElementById('courseLessonDetails');
+                if (lessonDetails) {
+                    lessonDetails.innerHTML = (course.curriculum || []).map(item => {
+                        const videoFragment = item.video_url ? renderLessonVideo(item) : '';
+                        const contentFragment = item.content ? `<p style="margin:0.5rem 0 0 0;">${item.content}</p>` : '';
+                        return `<div style="margin-bottom:1.75rem;"><h4>${item.title}</h4>${videoFragment}${contentFragment}</div>`;
+                    }).join('');
+                }
+
+                document.getElementById('enrollBtn').addEventListener('click', function () {
+                    if (!isLoggedIn()) {
+                        alert('Please login to enroll in this course');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    window.location.href = `checkout.html?courseId=${courseId}`;
+                });
+            } catch (e) {
+                console.error(e);
+                alert('Error loading course details');
+            }
+        }
+
+        if (courseId) {
+            document.addEventListener('DOMContentLoaded', loadCourseDetails);
+        } else {
+            window.location.href = 'courses.html';
+        }
+    </script>
+</body>
+
+</html>

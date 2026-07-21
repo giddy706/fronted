@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - SkillPath Academy</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, Helvetica, sans-serif; margin: 0; background: #f0f2f5; }
+    .admin-header { background: #1e40af; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .admin-header h1 { margin: 0; font-size: 24px; }
+    .logout-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+    .logout-btn:hover { background: #dc2626; }
+    .admin-container { display: flex; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
+    .sidebar { width: 200px; }
+    .tabs { display: flex; flex-direction: column; gap: 8px; }
+    .tab-btn { padding: 12px; background: white; border: 2px solid #e5e7eb; border-left: 4px solid #1e40af; cursor: pointer; text-align: left; border-radius: 4px; transition: all 0.3s; }
+    .tab-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
+    .tab-btn:hover { background: #f3f4f6; }
+    .tab-btn.active:hover { background: #1e40af; }
+    .content { flex: 1; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .card h2 { margin-top: 0; color: #1e40af; }
+    .card h3 { margin-top: 20px; margin-bottom: 12px; color: #374151; font-size: 16px; }
+    input, textarea, select { padding: 10px; margin: 8px 0; width: 100%; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 14px; }
+    button { padding: 10px 16px; margin: 8px 0; background: #1e40af; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    button:hover { background: #1e3a8a; }
+    button.delete { background: #ef4444; }
+    button.delete:hover { background: #dc2626; }
+    button.edit { background: #10b981; }
+    button.edit:hover { background: #059669; }
+    .hidden { display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: left; font-size: 14px; }
+    th { background: #f9fafb; font-weight: 600; }
+    a { color: #1e40af; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    small { display: block; margin-top: 8px; color: #6b7280; font-size: 13px; }
+    .login-page { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); }
+    .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 400px; }
+    .login-card h2 { color: #1e40af; margin-bottom: 30px; text-align: center; }
+    .login-card input { width: 100%; }
+    .login-card button { width: 100%; margin-top: 20px; }
+    .login-msg { color: #ef4444; margin-top: 12px; text-align: center; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-grid.full { grid-column: 1 / -1; }
+    @media (max-width: 768px) {
+      .admin-container { flex-direction: column; }
+      .sidebar { width: 100%; }
+      .tabs { flex-direction: row; overflow-x: auto; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loginPage" class="login-page">
+    <div class="login-card">
+      <h2>Admin Login</h2>
+      <input id="email" placeholder="Email" />
+      <input id="password" placeholder="Password" type="password" />
+      <button id="loginBtn">Login</button>
+      <div id="loginMsg" class="login-msg"></div>
+    </div>
+  </div>
+
+  <div id="adminPage" class="hidden">
+    <div class="admin-header">
+      <h1>SkillPath Academy - Admin Panel</h1>
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+    <div class="admin-container">
+      <div class="sidebar">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('courses')">📚 Courses</button>
+          <button class="tab-btn" onclick="switchTab('lessons')">📖 Lessons</button>
+          <button class="tab-btn" onclick="switchTab('traffic')">📊 Traffic</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="coursesTab" class="tab-content active">
+          <div class="card">
+            <h2>Create Course</h2>
+            <div class="form-grid">
+              <input id="c_title" placeholder="Course Title" />
+              <input id="c_category" placeholder="Category" />
+              <input id="c_price" placeholder="Price" type="number" />
+              <input id="c_instructor" placeholder="Instructor" />
+              <input id="c_level" placeholder="Level (e.g. Beginner)" />
+              <input id="c_duration" placeholder="Duration (e.g. 12 Weeks)" />
+            </div>
+            <textarea id="c_description" placeholder="Course Description" style="height: 80px;"></textarea>
+            <textarea id="c_requirements" placeholder="Requirements (comma separated)" style="height: 60px;"></textarea>
+            <textarea id="c_outcomes" placeholder="Learning Outcomes (comma separated)" style="height: 60px;"></textarea>
+            <div>
+              <label>Course Image:</label>
+              <input id="c_image" type="file" accept="image/*" />
+            </div>
+            <button id="createCourse">Create Course</button>
+          </div>
+          <div class="card">
+            <h2>Courses List</h2>
+            <button id="refreshCourses">Refresh</button>
+            <div id="coursesList"></div>
+          </div>
+        </div>
+
+        <div id="lessonsTab" class="tab-content">
+          <div class="card">
+            <h2>Edit Course & Lessons</h2>
+            <select id="edit_course" onchange="loadEditCourse()"></select>
+            <div id="courseEditForm" class="hidden">
+              <h3>Course Details</h3>
+              <div class="form-grid">
+                <input id="e_title" placeholder="Title" />
+                <input id="e_category" placeholder="Category" />
+                <input id="e_price" placeholder="Price" type="number" />
+                <input id="e_instructor" placeholder="Instructor" />
+              </div>
+              <textarea id="e_description" placeholder="Description" style="height: 80px;"></textarea>
+              <button id="updateCourse">Update Course</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Add Lesson</h2>
+            <select id="lesson_course"></select>
+            <input id="lesson_title" placeholder="Lesson Title" />
+            <input id="lesson_video" placeholder="Video URL (YouTube or direct link)" />
+            <textarea id="lesson_content" placeholder="Lesson Content" style="height: 100px;"></textarea>
+            <button id="addLesson">Add Lesson</button>
+            <small>Add lessons with text content and optional video links.</small>
+          </div>
+
+          <div class="card">
+            <h2>View & Edit Lessons</h2>
+            <select id="lesson_list_course" onchange="loadLessonList()"></select>
+            <div id="lessonList"></div>
+          </div>
+        </div>
+
+        <div id="trafficTab" class="tab-content">
+          <div class="card">
+            <h2>Traffic Logs (Recent)</h2>
+            <button id="refreshTraffic">Refresh</button>
+            <div id="trafficList" style="margin-top: 12px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
